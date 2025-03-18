@@ -1,0 +1,90 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+struct Node {
+    string name;
+    int age;
+    double height;
+    Node* next;
+};
+
+class LinkedList {
+public:
+    LinkedList() : head(NULL) {}
+    ~LinkedList();
+
+    void addToFront(string name, int age, double height);
+    void addToEnd(string name, int age, double height);
+    void addAfter(string target, string name, int age, double height);
+    void addBefore(string target, string name, int age, double height);
+    void deleteByName(string name);
+    void show();
+
+private:
+    Node* head;
+};
+LinkedList::~LinkedList() {
+    for (Node* temp; head; head = temp) {
+        temp = head->next;
+        delete head;
+    }
+}
+
+void LinkedList::addToFront(std::string name, int age, double height) {
+    head = new Node{name, age, height, head};
+}
+
+void LinkedList::addToEnd(string name, int age, double height) {
+    Node** temp = &head;
+    while (*temp) temp = &((*temp)->next);
+    *temp = new Node{name, age, height, NULL};
+}
+
+void LinkedList::addAfter(string target, string name, int age, double height) {
+    for (Node* temp = head; temp; temp = temp->next) {
+        if (temp->name == target) {
+            temp->next = new Node{name, age, height, temp->next};
+            return;
+        }
+    }
+}
+
+void LinkedList::addBefore(string target, string name, int age, double height) {
+    Node** temp = &head;
+    while (*temp && (*temp)->name != target) temp = &((*temp)->next);
+    *temp = new Node{name, age, height, *temp};
+}
+void LinkedList::deleteByName(std::string name) {
+    Node** temp = &head;
+    while (*temp && (*temp)->name != name) temp = &((*temp)->next);
+    if (*temp) {
+        Node* toDelete = *temp;
+        *temp = (*temp)->next;
+        delete toDelete;
+    }
+}
+
+void LinkedList::show() {
+    for (Node* temp = head; temp; temp = temp->next)
+        cout << "Name: " << temp->name << ", Age: " << temp->age << ", Height: " << temp->height << '\n';
+}
+
+int main() {
+    LinkedList list;
+
+    list.addToEnd("Chad", 18, 160);
+    list.addToFront("Henry", 20, 176);
+    list.addAfter("Chad", "Mark", 21, 198);
+    list.addBefore("Chad", "Oleg", 19, 170);
+
+    cout << "List after additions:\n";
+    list.show();
+
+    list.deleteByName("Charlie");
+    cout << "\nList after removing Charlie:\n";
+    list.show();
+
+    return 0;
+}
