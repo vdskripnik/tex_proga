@@ -9,7 +9,7 @@ struct Node {
     double height;
     Node* next;
 
-    Node( string n, int a, double s)
+    Node(string n, int a, double s)
         : name(n), age(a), height(s), next(NULL) {}
 };
 
@@ -28,7 +28,9 @@ public:
         Node* newNode = new Node(name, age, height);
         newNode->next = head;
         head = newNode;
-    } void addAtEnd(string name, int age, double height) {
+    }
+
+    void addAtEnd(string name, int age, double height) {
         Node* newNode = new Node(name, age, height);
         if (!head) {
             head = newNode;
@@ -53,7 +55,37 @@ public:
         } else {
             cerr << "Элемент с именем " << afterName << " не найден." << endl;
         }
-    } void removeByName(const string& name) {
+    }
+
+    void addBefore(string beforeName, string name, int age, double height) {
+        if (!head) {
+            cerr << "Список пуст." << endl;
+            return;
+        }
+
+        if (head->name == beforeName) {
+            addAtBeginning(name, age, height);
+            return;
+        }
+
+        Node* current = head;
+        Node* prev = NULL;
+
+        while (current && current->name != beforeName) {
+            prev = current;
+            current = current->next;
+        }
+
+        if (current) {
+            Node* newNode = new Node(name, age, height);
+            newNode->next = current;
+            prev->next = newNode;
+        } else {
+            cerr << "Элемент с именем " << beforeName << " не найден." << endl;
+        }
+    }
+
+    void removeByName(const string& name) {
         Node* current = head;
         Node* prev = NULL;
 
@@ -80,7 +112,9 @@ public:
             cout << "Имя: " << current->name << ", Возраст: " << current->age << ", Рост: " << current->height << endl;
             current = current->next;
         }
-    }void clear() {
+    }
+
+    void clear() {
         while (head) {
             Node* temp = head;
             head = head->next;
@@ -100,11 +134,15 @@ int main() {
     list.show();
 
     list.addAfter("Ксюша", "Олег", 28, 184.0);
-    cout << "\n Список после добавления Олег после Ксюша :" << endl;
+    cout << "\nСписок после добавления Олег после Ксюша :" << endl;
+    list.show();
+
+    list.addBefore("Злата", "Анна", 22, 160.0);
+    cout << "\nСписок после добавления Анна перед Злата :" << endl;
     list.show();
 
     list.removeByName("Дима");
-    cout << "\n Список после удаления Дима:" << endl;
+    cout << "\nСписок после удаления Дима:" << endl;
     list.show();
 
     return 0;
