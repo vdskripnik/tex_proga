@@ -161,7 +161,7 @@ class matr {
             return *this;
         }
     
-        matr operator+(const matr& m) {
+        matr operator+(const matr& m) { //  сложение матрицы
             matr res(dim);
             for (int i = 0; i < dim; ++i)
                 for (int j = 0; j < dim; ++j)
@@ -200,7 +200,7 @@ class matr {
             return res;
         }
     
-        matr operator*(double k) {
+        matr operator*(double k) { // умножение матрицы на число
             matr res(dim);
             for (int i = 0; i < dim; ++i)
                 for (int j = 0; j < dim; ++j)
@@ -209,7 +209,7 @@ class matr {
             return res;
         }
     
-        vect operator*(const vect& v) { 
+        vect operator*(const vect& v) { // умножение матрицы на вектор 
             vect res(dim);
             for (int i = 0; i < dim; ++i) {
                 res.b[i] = 0;
