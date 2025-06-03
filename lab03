@@ -4,33 +4,35 @@
 
 class Point {
 public:
-  virtual void draw() const = 0;
-  virtual void remove() = 0;
-  virtual void move(double dx, double dy) = 0;
-  virtual void rotate(double angle, double centerX = 0, double centerY = 0) = 0;
-  virtual void reflectX() = 0;
-  virtual void reflectY() = 0;
-  virtual ~Point() {}
+  virtual void draw() const = 0;       // Чисто виртуальная функция для отрисовки
+  virtual void remove() = 0;           // Чисто виртуальная функция для удаления
+  virtual void move(double dx, double dy) = 0; // Для перемещения
+  virtual void rotate(double angle, double centerX = 0, double centerY = 0) = 0; // Для поворота
+  virtual void reflectX() = 0;         // Для отражения по X
+  virtual void reflectY() = 0;         // Для отражения по Y
+  virtual ~Point() {}                  // Виртуальный деструктор
 };
 
 class Shape : public Point {
 protected:
-  std::vector<std::pair<double, double>> vertices;
+  std::vector<std::pair<double, double>> vertices; // Вектор вершин фигуры
 
 public:
+  // Отрисовка всех вершин фигуры
   void draw() const override {
     std::cout << "Drawing a shape with vertices at:" << std::endl;
     for (const auto &vertex : vertices) {
-      std::cout << "(" << vertex.first << ", " << vertex.second << ")"
-                << std::endl;
+      std::cout << "(" << vertex.first << ", " << vertex.second << ")" << std::endl;
     }
   }
 
+  // Удаление фигуры (очистка вектора вершин)
   void remove() override {
     std::cout << "Removing a shape." << std::endl;
     vertices.clear();
   }
 
+  // Перемещение всех вершин на dx и dy
   void move(double dx, double dy) override {
     for (auto &vertex : vertices) {
       vertex.first += dx;
@@ -38,21 +40,22 @@ public:
     }
   }
 
+  // Поворот фигуры на заданный угол вокруг точки (centerX, centerY)
   void rotate(double angle, double centerX = 0, double centerY = 0) override {
-    double rad = angle * M_PI / 180.0;
-    double cosA = cos(rad);
-    double sinA = sin(rad);
+    double rad = angle * M_PI / 180.0;  // Перевод угла в радианы
+    double cosA = cos(rad);             // Косинус угла
+    double sinA = sin(rad);             // Синус угла
     
     for (auto &vertex : vertices) {
-      // Translate to origin
+      // Перенос в начало координат
       double x = vertex.first - centerX;
       double y = vertex.second - centerY;
       
-      // Rotate
+      // Поворот
       double newX = x * cosA - y * sinA;
       double newY = x * sinA + y * cosA;
       
-      // Translate back
+      // Обратный перенос
       vertex.first = newX + centerX;
       vertex.second = newY + centerY;
     }
@@ -60,6 +63,7 @@ public:
               << centerX << ", " << centerY << ")." << std::endl;
   }
 
+  // Отражение по оси X (инвертирование Y-координат)
   void reflectX() override {
     for (auto &vertex : vertices) {
       vertex.second = -vertex.second;
@@ -67,6 +71,7 @@ public:
     std::cout << "Reflected shape over X axis." << std::endl;
   }
 
+  // Отражение по оси Y (инвертирование X-координат)
   void reflectY() override {
     for (auto &vertex : vertices) {
       vertex.first = -vertex.first;
@@ -77,11 +82,13 @@ public:
 
 class Line : public Shape {
 public:
+  // Конструктор линии (две точки)
   Line(std::pair<double, double> start, std::pair<double, double> end) {
     vertices.push_back(start);
     vertices.push_back(end);
   }
 
+  // Специфичная отрисовка линии
   void draw() const override {
     std::cout << "Drawing a line from (" << vertices[0].first << ", "
               << vertices[0].second << ") to (" << vertices[1].first << ", "
@@ -91,17 +98,20 @@ public:
 
 class Square : public Shape {
 protected:
-  double sideLength;
+  double sideLength;  // Длина стороны
 
 public:
+  // Конструктор квадрата (левая верхняя точка + длина стороны)
   Square(std::pair<double, double> topLeft, double length)
       : sideLength(length) {
+    // Добавление 4 вершин квадрата
     vertices.push_back(topLeft);
     vertices.push_back({topLeft.first + length, topLeft.second});
     vertices.push_back({topLeft.first + length, topLeft.second - length});
     vertices.push_back({topLeft.first, topLeft.second - length});
   }
 
+  // Специфичная отрисовка квадрата
   void draw() const override {
     std::cout << "Drawing a square with side length " << sideLength
               << " and top left vertex at (" << vertices[0].first << ", "
@@ -163,18 +173,21 @@ public:
 
 class Rectangle : public Shape {
 protected:
-  double width;
-  double height;
+  double width;   // Ширина
+  double height;  // Высота
 
 public:
+  // Конструктор прямоугольника
   Rectangle(std::pair<double, double> topLeft, double w, double h)
       : width(w), height(h) {
+    // Добавление 4 вершин прямоугольника
     vertices.push_back(topLeft);
     vertices.push_back({topLeft.first + w, topLeft.second});
     vertices.push_back({topLeft.first + w, topLeft.second - h});
     vertices.push_back({topLeft.first, topLeft.second - h});
   }
 
+  // Специфичная отрисовка прямоугольника
   void draw() const override {
     std::cout << "Drawing a rectangle with width " << width << ", height "
               << height << " and top left vertex at (" << vertices[0].first
@@ -193,20 +206,22 @@ public:
               << vertices[0].second << ")." << std::endl;
   }
 };
-
+// Функция для поворота любой фигуры
 void rotateShape(Point &shape, double angle, double centerX = 0, double centerY = 0) {
   shape.rotate(angle, centerX, centerY);
 }
 
+// Функция для отражения по X
 void reflectOverX(Point &shape) {
   shape.reflectX();
 }
 
+// Функция для отражения по Y
 void reflectOverY(Point &shape) {
   shape.reflectY();
 }
-
 int main() {
+  // Создание фигур
   Line line({0, 0}, {1, 1});
   Square square({0, 0}, 2);
   Rectangle rectangle({0, 0}, 3, 2);
@@ -214,37 +229,37 @@ int main() {
   Parallelogram parallelogram({0, 0}, 3, 2, 45);
   Rhombus rhombus({0, 0}, 2, 60);
 
-  // Testing rotation
+  // Тестирование поворота линии
   std::cout << "Original line:\n";
   line.draw();
-  rotateShape(line, 45); // Rotate 45 degrees around origin
+  rotateShape(line, 45); // Поворот на 45 градусов
   std::cout << "After rotation:\n";
   line.draw();
 
-  // Testing reflection
+  // Тестирование отражения квадрата
   std::cout << "\nOriginal square:\n";
   square.draw();
-  reflectOverX(square);
+  reflectOverX(square); // Отражение по X
   std::cout << "After X reflection:\n";
   square.draw();
-  reflectOverY(square);
+  reflectOverY(square); // Отражение по Y
   std::cout << "After Y reflection:\n";
   square.draw();
 
-  // Testing rotation around a point
+  // Тестирование поворота прямоугольника вокруг центра
   std::cout << "\nOriginal rectangle:\n";
   rectangle.draw();
-  rotateShape(rectangle, 90, 1.5, -1); // Rotate 90 degrees around center
+  rotateShape(rectangle, 90, 1.5, -1); // Поворот на 90° вокруг центра
   std::cout << "After rotation around center:\n";
   rectangle.draw();
 
-  // Testing with parallelogram
+  // Тестирование операций с параллелограммом
   std::cout << "\nOriginal parallelogram:\n";
   parallelogram.draw();
-  rotateShape(parallelogram, 30);
+  rotateShape(parallelogram, 30); // Поворот на 30°
   std::cout << "After rotation:\n";
   parallelogram.draw();
-  reflectOverX(parallelogram);
+  reflectOverX(parallelogram); // Отражение по X
   std::cout << "After X reflection:\n";
   parallelogram.draw();
 
