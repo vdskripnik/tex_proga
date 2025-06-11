@@ -1,0 +1,217 @@
+// Подключаем необходимые библиотеки:
+#include <iostream>   // для ввода/вывода (cin, cout)
+#include <fstream>    // для работы с файлами (ifstream, ofstream)
+#include <vector>     // для использования динамического массива vector
+#include <sstream>    // для работы со строковыми потоками (stringstream)
+#include <string>     // для работы со строками string
+
+using namespace std;  // используем пространство имен std для упрощения кода
+
+// Класс Student для хранения информации о студенте
+class Student {
+public:
+    int id;          // уникальный идентификатор студента
+    string name;     // имя студента
+    int age;         // возраст студента
+    double grade;    // оценка студента
+
+    // Конструктор по умолчанию - инициализирует все поля нулевыми значениями
+    Student() : id(0), name(""), age(0), grade(0.0) {}
+
+    // Метод преобразует объект Student в строку для записи в файл
+    // Формат: "id name age grade"
+    string toString() const {
+        return to_string(id) + " " + name + " " + to_string(age) + " " + to_string(grade);
+    }
+
+    // Метод заполняет поля объекта из строки (обратное преобразование)
+    void fromString(const string& str) {
+        stringstream ss(str);  // создаем строковый поток из переданной строки
+        ss >> id >> name >> age >> grade;  // извлекаем данные из потока в поля объекта
+    }
+};
+
+// Функция загрузки данных о студентах из файла
+void loadFromFile(const string& filename, vector<Student>& students) {
+    students.clear();  // очищаем вектор перед загрузкой новых данных
+    ifstream fin(filename);  // открываем файл для чтения
+    
+    // Проверяем, открылся ли файл
+    if (!fin.is_open()) {
+        cout << "Файл не открыт или не существует. Будет создан новый файл.\n";
+        return;
+    }
+    
+    string line;  // переменная для хранения строки из файла
+    // Читаем файл построчно
+    while (getline(fin, line)) {
+        if (line.empty()) continue;  // пропускаем пустые строки
+        Student s;                  // создаем временный объект Student
+        s.fromString(line);         // заполняем его из строки
+        students.push_back(s);      // добавляем в вектор
+    }
+    fin.close();  // закрываем файл
+}
+
+// Функция сохранения данных о студентах в файл
+void saveToFile(const string& filename, const vector<Student>& students) {
+    ofstream fout(filename);  // открываем файл для записи
+    
+    // Проверяем, открылся ли файл
+    if (!fout.is_open()) {
+        cout << "Не удалось открыть файл для записи.\n";
+        return;
+    }
+    
+    // Записываем каждого студента в файл
+    for (const auto& s : students) {
+        fout << s.toString() << "\n";  // записываем строковое представление студента
+    }
+    fout.close();  // закрываем файл
+}
+
+// Функция добавления нового студента
+void addStudent(vector<Student>& students) {
+    Student s;  // создаем новый объект Student
+    
+    // Запрашиваем данные у пользователя
+    cout << "Введите ID: ";
+    cin >> s.id;
+    
+    // Проверяем уникальность ID
+    for (const auto& stud : students) {
+        if (stud.id == s.id) {
+            cout << "Студент с таким ID уже существует!\n";
+            return;
+        }
+    }
+
+    // Запрашиваем остальные данные
+    cout << "Введите имя: ";
+    cin >> s.name;
+    
+    cout << "Введите возраст: ";
+    cin >> s.age;
+
+    cout << "Введите оценку: ";
+    cin >> s.grade;
+
+    students.push_back(s);  // добавляем нового студента в вектор
+}
+
+// Функция обновления данных студента по ID
+void updateStudent(vector<Student>& students) {
+    int idToUpdate;
+    cout << "Введите ID студента для обновления: ";
+    cin >> idToUpdate;  // получаем ID студента для обновления
+
+    // Ищем студента с указанным ID
+    for (auto& s : students) {
+        if (s.id == idToUpdate) {
+            // Запрашиваем новые данные
+            cout << "Введите новое имя: ";
+            cin >> s.name;
+
+            cout << "Введите новый возраст: ";
+            cin >> s.age;
+
+            cout << "Введите новую оценку: ";
+            cin >> s.grade;
+
+            cout << "Обновление завершено.\n";
+            return;
+        }
+    }
+    // Если студент не найден
+    cout << "Студент с таким ID не найден.\n";
+}
+
+// Функция удаления студента по ID
+void deleteStudent(vector<Student>& students) {
+    int idToDelete;
+    cout << "Введите ID студента для удаления: ";
+    cin >> idToDelete;  // получаем ID студента для удаления
+
+    // Итеративно ищем студента в векторе
+    for (auto it = students.begin(); it != students.end(); ++it) {
+        if (it->id == idToDelete) {
+            students.erase(it);  // удаляем студента
+            cout << "Студент удален.\n";
+            return;
+        }
+   }
+   // Если студент не найден
+   cout << "Студент с таким ID не найден.\n";
+}
+
+// Функция вывода списка всех студентов
+void printStudents(const vector<Student>& students) {
+   // Проверяем, есть ли студенты для вывода
+   if (students.empty()) {
+       cout << "Нет данных.\n";
+       return;
+   }
+
+   // Выводим информацию о каждом студенте
+   for (const auto& s : students) {
+       cout << "ID: " << s.id 
+            << ", Имя: " << s.name 
+            << ", Возраст: " << s.age 
+            << ", Оценка: " << s.grade 
+            << "\n";
+   }
+}
+
+// Главная функция программы
+int main() {
+   vector<Student> students;  // создаем вектор для хранения студентов
+   string filename = "students.txt";  // имя файла для хранения данных
+
+   // Загружаем данные из файла при запуске программы
+   loadFromFile(filename, students);
+
+   int choice;  // переменная для выбора пользователя в меню
+
+   // Основной цикл программы
+   do {
+       // Выводим меню
+       cout << "\nМеню:\n"
+            << "1. Показать всех студентов\n"
+            << "2. Добавить студента\n"
+            << "3. Обновить студента\n"
+            << "4. Удалить студента\n"
+            << "5. Сохранить в файл\n"
+            << "6. Выйти\n"
+            << "Выберите действие: ";
+       cin >> choice;  // получаем выбор пользователя
+
+       // Обрабатываем выбор пользователя
+       switch(choice) {
+           case 1:  // Показать всех студентов
+               printStudents(students);
+               break;
+           case 2:  // Добавить студента
+               addStudent(students);
+               break;
+           case 3:  // Обновить данные студента
+               updateStudent(students);
+               break;
+           case 4:  // Удалить студента
+               deleteStudent(students);
+               break;
+           case 5:  // Сохранить данные в файл
+               saveToFile(filename, students);
+               cout << "Данные сохранены.\n";
+               break;
+           case 6:  // Выход из программы
+               saveToFile(filename, students);  // автоматическое сохранение при выходе
+               cout << "Выход из программы.\n";
+               break;
+           default:  // Некорректный ввод
+               cout << "Некорректный выбор.\n";
+       }
+
+   } while(choice != 6);  // цикл продолжается, пока пользователь не выберет выход
+
+   return 0;  // завершение программы
+}
